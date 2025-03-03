@@ -16,7 +16,7 @@ async def get_books():
         result.append({
             "id": bookserie.id,
             "title": bookserie.name,
-            "chapter_first_id": chapter.id
+            "chapterFirstId": chapter.id
         })
     # 获取所有books里面series_id为null的
     books = await Books.filter(series__id__isnull=True).all()
@@ -26,7 +26,7 @@ async def get_books():
         result.append({
             "id": book.id,
             "title": book.name,
-            "chapter_first_id": chapter.id
+            "chapterFirstId": chapter.id
         })
     # 获取chapters里面book_id为null的
     chapters = await Chapters.filter(book__id__isnull=True).all()
@@ -34,23 +34,11 @@ async def get_books():
         result.append({
             "id": chapter.id,
             "title": chapter.name,
-            "chapter_first_id": chapter.id
+            "chapterFirstId": chapter.id
         })
 
     return {
-        "success": True,
-        "result": result
+        "code": 1,
+        "msg": "null",
+        "data": result
     }
-
-# {
-#     "success": "true",
-#     "result": [{
-#         "id": 1,
-#         "title": "xxx",
-#         "chapter_id": 5
-#     },{
-#         "id":11,
-#         "title": "xxx",
-#         "chapter_id": 5
-#     }]
-# }

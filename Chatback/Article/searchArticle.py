@@ -17,7 +17,7 @@ class get_articles(BaseModel):
 async def get_article_list(response: Response, startIndex: int = Query(..., ge=0), endIndex: int = Query(..., ge=0)):
     try:
         article_list = []
-        chapters = await Chapters.filter(id__gte=startIndex + 2, id__lte=endIndex + 1)
+        chapters = await Chapters.filter(id__gte=startIndex + 1, id__lte=endIndex)
         for chapter in chapters:
             # 尝试获取关联的Book记录
             book = await chapter.book
@@ -39,10 +39,11 @@ async def get_article_list(response: Response, startIndex: int = Query(..., ge=0
         total = await Chapters.all().count()
 
         return {
-            "success": True,
-            "result": {
+            "code": 1,
+            "msg": "null",
+            "data": {
                 "total": total,
-                "list": article_list
+                "rows": article_list
             }
         }
     except Exception as e:
@@ -110,33 +111,39 @@ async def get_article_detail(response: Response, id: int = Query(..., ge=0)):
         content_list = []
         for paragraph in paragraphs:
             content_list.append({
-                "ancient_content": paragraph.ancient_text,
-                "modern_content": paragraph.modern_text
+                "ancientContent": paragraph.ancient_text,
+                "modernContent": paragraph.modern_text
             })
+        result = {
+            "title": chapter.name,
+            "author": "xxx",
+            "dynasty": "xxx",
+            "content": chapter.full_ancient_content,
+            "contentList": content_list,
+            "translation": chapter.full_modern_content,
+            "notes": "xxx"
+        }
+
         return {
-            "success": True,
-            "result": {
-                "title": chapter.name,
-                "author": "xxx",
-                "dynasty": "xxx",
-                "content": chapter.full_ancient_content,
-                "content_list": content_list,
-                "translation": chapter.full_modern_content,
-                "notes": "xxx"
+            "code": 1,
+            "msg": "null",
+            "data": {
+                "result": result,
+                "navTreeData": navTreeData
             },
-            "navTreeData": navTreeData
         }
     except Exception as e:
         # 捕获其他异常
         print(f"异常信息：{e}")
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {
-            "success": False,
-            "message": f"系统错误: {str(e)}"
+            "code": 0,
+            "msg": f"系统错误: {str(e)}",
+            "data": "null"
         }
 
 
-@searchArticle.get("/searchArticle")
+@searchArticle.get("/searchArticles")
 async def search_article(response: Response, title: str = Query(None)):
     # 保存所有查找到的chapters
     chapters_all = []
@@ -191,9 +198,10 @@ async def search_article(response: Response, title: str = Query(None)):
         })
 
     return {
-        "success": True,
-        "result": {
+        "code": 1,
+        "msg": "null",
+        "data": {
             "total": len(result_list),
-            "list": result_list
+            "rows": result_list
         }
     }
